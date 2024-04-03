@@ -11,4 +11,3 @@ if __name__ == '__main__':
     print(idx)
 
     ipdb.set_trace()
-    print("asdasd") # test
