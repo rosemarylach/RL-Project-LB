@@ -15,7 +15,7 @@ end
 for a = 1 : Nr
     anglegrid_rx(a) = 2/(Nr)*(a-1)-1;
 end
-
+asd = 1
 %% Making DFT Matrix
 for itx = 1 : Nt
     at = 1/sqrt(Nt).*exp(1j*pi.*(0:(Nt-1))'.*anglegrid_tx(itx));
