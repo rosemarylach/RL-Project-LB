@@ -1,6 +1,9 @@
 clear
 clc
 
+% We will need to use qd_track to define the user track. Check the tutorial
+% codes in the QuadRiGa document. (e.g. t02_drive_course)
+
 %%
 Nt=32; Nr=4;
 At=[];
