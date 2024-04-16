@@ -1,7 +1,7 @@
 clear; clc; close all;
 
 %% Parameters
-num_ue = 10; % number of UEs
+num_ue = 120; % number of UEs
 num_bs = 2; % number of BSs
 
 Nt=32; % number of tx antenna elements
@@ -64,8 +64,9 @@ t4 = gen_sq_track([-300; -110; ue_height], 100, 600);
 t5 = gen_sq_track([-100; -220; ue_height], 100, 200);
 t6 = gen_sq_track([-100; 10; ue_height], 100, 200);
 t7 = gen_sq_track([-100; -110; ue_height], 100, 200);
+t8 = gen_sq_track([100; -110; ue_height], 210, 200);
 
-track_opts = [t1, t2, t3, t4, t5, t6, t7];
+track_opts = [t1, t2, t3, t4, t5, t6, t7, t8];
 track_lens = arrayfun(@(x) x.get_length(), track_opts);
 
 % /////////////////////////////////////////////////////
