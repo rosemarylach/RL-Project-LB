@@ -1,11 +1,11 @@
 clear; clc; close all;
 
 %% Parameters
-num_ue = 120; % number of UEs
+num_ue = 10; % number of UEs
 num_bs = 2; % number of BSs
 
-Nt=32; % number of tx antenna elements
-Nr=4; % number of rx antenna elements
+Nt=10; % number of tx antenna elements
+Nr=1; % number of rx antenna elements
 
 v_mean = 15; % mean UE velocity
 v_var = 9; % variance of UE velocity
@@ -16,6 +16,8 @@ bs_height = 25;
 center_freqs = [2500e6, 700e6]; % 2500 MHz, 700 MHz
 
 BW = [60e6, 10e6]; % 60 MHz for 2500 MHz band, 10 MHz for 700 MHz band
+% Just a note, I believe the BW should not be affecting the channel
+% behavior.
 
 num_subcarrier = 1;                  % Narrowband setting
 % num_subcarrier = 667; % 512        % 667: subcarrier spacing 30kHz for 20MHz BW
@@ -28,7 +30,7 @@ s.center_frequency = [2.5e9, 0.7e9];                    % Two center frequencies
 
 % Antenna configuration 1 (UMa and UMi)
 % 10 elements in elevation, 1 element in azimuth, vertical pol., 12 deg downtilt, 0.5 lambda spacing
-a = qd_arrayant( '3gpp-3d', 10, 1, [], 4, 12, 0.5 );
+a = qd_arrayant( '3gpp-3d', Nt, 1, [], 4, 12, 0.5 );
 a.element_position(1,:) = 0.5;             % Distance from pole in [m]
 l = qd_layout.generate( 'regular', 1, 0, a);
 l.simpar = s;
@@ -135,7 +137,8 @@ l.visualize([],[],0);                                   % Plot
 % hold on
 % imagesc( x_coords, y_coords, P );                       % Plot the received power
 % hold off
-l.update_rate = 0.01;                                   % Set channel update rate to 100 Hz
+l.update_rate = 0.1;                                   % Set channel update rate to 10 Hz
+% The duration of each slot is 100 ms, so changing this to 10 Hz.
 c = l.get_channels;                                     % Generate channels
 
 pow_1  = 10*log10( reshape( sum(abs(c(1).coeff(:,1,:,:)).^2,3) ,1,[] ) );    % Calculate the power
