@@ -4,7 +4,7 @@ clc
 fignum = 0;
 
 %% Parameters
-num_ue = 120; % number of UEs
+num_ue = 10; % number of UEs
 num_bs = 2; % number of BSs
 
 Nt=32; % number of tx antenna elements
