@@ -3,7 +3,7 @@ clear; clc; close all;
 %% Parameters
 ep_len = 900;
 
-num_ue = 2; % number of UEs
+num_ue = 120; % number of UEs
 num_bs = 2; % number of BSs
 
 Nt=10; % number of tx antenna elements
@@ -99,18 +99,23 @@ for ue=1:num_ue
 
     ue_track.scenario = '3GPP_38.901_UMa_LOS';
 
-    % Randomize ue position on track
-    ue_track.positions = circshift(ue_track.positions, randi(size(ue_track.positions, 2)), 2); % random start point
-    ue_track.positions = ue_track.positions + ue_track.initial_position; % uncancel old initial position
-    ue_track.initial_position = ue_track.positions(:, 1); % zero out new initial position
-    ue_track.positions = ue_track.positions - ue_track.initial_position; % add offset for new initial position
-    ue_track.positions = [ue_track.positions, ue_track.positions, ue_track.positions];
-
     % Set Random Speed drawn from gaussian
     % ue_track.set_speed(normrnd(v_mean, sqrt(v_var)));
     v = normrnd(v_mean, sqrt(v_var));
     ue_track.movement_profile = [0 (ep_len-1)*0.1; ...
                                  0 v*(ep_len-1)*0.1];
+
+    min_track_len = v * (ep_len-1)*0.1;
+    num_loops = ceil(min_track_len / ue_track.get_length);
+
+    % Randomize ue position on track
+    ue_track.positions = circshift(ue_track.positions, randi(size(ue_track.positions, 2)), 2); % random start point
+    ue_track.positions = ue_track.positions + ue_track.initial_position; % uncancel old initial position
+    ue_track.initial_position = ue_track.positions(:, 1); % zero out new initial position
+    ue_track.positions = ue_track.positions - ue_track.initial_position; % add offset for new initial position
+    
+    ue_track.positions = repmat(ue_track.positions, 1, num_loops);
+
 
     % Randomly reverse direction
     if randi([0, 1])
