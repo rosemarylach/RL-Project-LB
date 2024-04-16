@@ -3,7 +3,7 @@ clear; clc; close all;
 %% Parameters
 ep_len = 900;
 
-num_ue = 2; % number of UEs
+num_ue = 120; % number of UEs
 num_bs = 2; % number of BSs
 
 Nt=10; % number of tx antenna elements
@@ -104,7 +104,7 @@ for ue=1:num_ue
     ue_track.positions = ue_track.positions + ue_track.initial_position; % uncancel old initial position
     ue_track.initial_position = ue_track.positions(:, 1); % zero out new initial position
     ue_track.positions = ue_track.positions - ue_track.initial_position; % add offset for new initial position
-    ue_track.positions = [ue_track.positions, ue_track.positions, ue_track.positions];
+    ue_track.positions = [ue_track.positions, ue_track.positions, ue_track.positions, ue_track.positions, ue_track.positions, ue_track.positions];
 
     % Set Random Speed drawn from gaussian
     % ue_track.set_speed(normrnd(v_mean, sqrt(v_var)));
@@ -158,7 +158,7 @@ pow_1  = 10*log10( reshape( sum(abs(c(1).coeff(:,1,:,:)).^2,3) ,1,[] ) );    % C
 pow_2  = 10*log10( reshape( sum(abs(c(1).coeff(:,2,:,:)).^2,3) ,1,[] ) );    % Calculate the power
 pow_3  = 10*log10( reshape( sum(abs(c(1).coeff(:,3,:,:)).^2,3) ,1,[] ) );    % Calculate the power
 
-time = (0:c(1).no_snap-1)*0.01;                            % Vector with time samples
+time = (0:c(1).no_snap-1)*0.1;                            % Vector with time samples
 figure(2);
 plot(time,pow_1'+50);
 hold on;
