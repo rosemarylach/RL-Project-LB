@@ -7,7 +7,7 @@ function t = gen_sq_track(init_pos, height, width, interp)
 % end
 
 if nargin < 4
-    interp = true;
+    interp = false;
 end
 
 
