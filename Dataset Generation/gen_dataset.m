@@ -1,36 +1,33 @@
 clear
 clc
 
-%%
-Nt=32; Nr=4;
-At=[];
-Ar=[];
-anglegrid_tx = zeros(Nt,1);
-anglegrid_rx = zeros(Nr,1);
+fignum = 0;
 
-%% Making a grid on sin values 
-for a = 1 : Nt
-    anglegrid_tx(a) = 2/(Nt)*(a-1)-1;
-end
-for a = 1 : Nr
-    anglegrid_rx(a) = 2/(Nr)*(a-1)-1;
-end
+%% Parameters
+num_ue = 120; % number of UEs
+num_bs = 2; % number of BSs
 
-%% Making DFT Matrix
-for itx = 1 : Nt
-    at = 1/sqrt(Nt).*exp(1j*pi.*(0:(Nt-1))'.*anglegrid_tx(itx));
-    At = [At at];
-end
-for irx = 1 : Nr
-    ar = 1/sqrt(Nr).*exp(1j*pi.*(0:(Nr-1))'.*anglegrid_rx(irx));
-    Ar = [Ar ar];
-end
+Nt=32; % number of tx antenna elements
+Nr=4; % number of rx antenna elements
+
+v_mean = 15; % mean UE velocity
+v_var = 9; % variance of UE velocity
+
+ue_height = 1.5;
+bs_height = 25;
+
+center_freqs = [2500e6, 700e6]; % 2500 MHz, 700 MHz
+
+BW = [60e6, 10e6]; % 60 MHz for 2500 MHz band, 10 MHz for 700 MHz band
+
+num_subcarrier = 1;                  % Narrowband setting
+% num_subcarrier = 667; % 512        % 667: subcarrier spacing 30kHz for 20MHz BW
 
 %% Channel model setup and coefficient generation
 
 s = qd_simulation_parameters; % Set up simulation parameters
 s.show_progress_bars = 1; % Show progress bar 0: disabled
-s.center_frequency = [2500e6, 700e6]; % Set center frequency (2500 MHz, 700 MHz)
+s.center_frequency = center_freqs; % Set center frequency (2500 MHz, 700 MHz)
 
 % s.samples_per_meter = 1; 360/(40*pi); 1; % 1 sample per meter
 % s.use_absolute_delays = 1; % Include delay of the LOS path
@@ -58,9 +55,20 @@ rx_array2 = qd_arrayant( '3gpp-3d',  1, 1, s.center_frequency(2));
 % l.tx_array = qd_arrayant('omni'); % Omni-directional BS antenna
 % l.rx_array = a; % Omni-directional MT antenna
 
+%% Generate tracks
+% gen_sq_track([start_x; start_y; start_z], height, width)
+t1 = gen_sq_track([-300; 10; ue_height], 100, 600);
+t2 = gen_sq_track([-300; -110; ue_height], 210, 200);
+t3 = gen_sq_track([-100; 120; ue_height], 100, 200);
+t4 = gen_sq_track([-300; -110; ue_height], 100, 600);
+t5 = gen_sq_track([-100; -220; ue_height], 100, 200);
+t6 = gen_sq_track([-100; 10; ue_height], 100, 200);
+t7 = gen_sq_track([-100; -110; ue_height], 100, 200);
+
+track_opts = [t1, t2, t3, t4, t5, t6, t7];
+track_lens = arrayfun(@(x) x.get_length(), track_opts);
+
 %% Layout and Channel Generation
-num_ue = 120; % number of UEs
-num_bs = 2;
 
 l = qd_layout(s); % Create new QuaDRiGa layout
 
@@ -69,17 +77,45 @@ l.no_rx = num_ue;
 l.no_tx = num_bs;
 
 % initialize arrays
-l.tx_array = [tx_array1, tx_array2];
-l.rx_array = [rx_array1, rx_array2];
+l.tx_array = repmat([tx_array1; tx_array2], 1, num_bs);
+l.rx_array = repmat([rx_array1; rx_array2], 1, num_ue);
 
 % initialize positions
-l.tx_position = [-100 0 25; 100 0 25]';  % 25m Tx heigh and (100,0), (-100, 0) x, y position
+l.tx_position = [-100 0 bs_height; 100 0 bs_height]';  % (100,0), (-100, 0) x, y position
 
-l.randomize_rx_positions(100,1.2,2.0,0); % 200 m radius, 1.5 m Rx height, 0 tracklength -> "1 Rx snapshot".
-% l.randomize_rx_positions(100,1.6,1.6,0); % 200 m radius, 1.5 m Rx height, 0 tracklength -> "1 Rx snapshot".
+% Randomly distribute UEs
+for ue=1:num_ue
+    % Assign ue to random track
 
-% Note: Default track length is 1m.
-% randomize_rx_positions(max_dist, min_height, max_height, tracklength, rx_ind, min_dist, orientation)
+    % sample a track with equal likelihood
+    % ue_track_idx = randi(numel(track_opts), 1); % sample num_ue tracks from available % even sample
+    % ue_track = copy(track_opts(ue_track_idx));
+
+    % alternatively sample track weighted by length
+    % ue_track = copy(randsample(track_opts, 1, true, track_lens)); % sample track directly
+    ue_track_idx = randsample(length(track_opts), 1, true, track_lens);
+    ue_track = copy(track_opts(ue_track_idx));
+    ue_track.name = ['track', num2str(ue_track_idx), 'ue', num2str(ue)]; % need unique name
+
+    % Randomize ue position on track
+    ue_track.positions = circshift(ue_track.positions, randi(size(ue_track.positions, 2)), 2); % random start point
+    ue_track.positions = ue_track.positions + ue_track.initial_position; % uncancel old initial position
+    ue_track.initial_position = ue_track.positions(:, 1); % zero out new initial position
+    ue_track.positions = ue_track.positions - ue_track.initial_position; % add offset for new initial position
+
+    % Randomly reverse direction
+    if randi([0, 1])
+        ue_track = rev_track(ue_track);
+    end
+
+    % Set Random Speed drawn from gaussian
+    ue_track.set_speed(normrnd(v_mean, sqrt(v_var)))
+
+    l.rx_track(1, ue) = ue_track;
+end
+
+fignum = fignum+1;
+l.visualize([], [], 0);
 
 % Scenarios
 BerUMaL = 'BERLIN_UMa_LOS';
@@ -89,67 +125,39 @@ StdUMi= '3GPP_38.901_UMi';
 temp = '3GPP_38.901_UMi_LOS';
 
 l.set_scenario(StdUMa); % Select scenario
+
 % Comment: qd_builder.supported_scenarios   % Scenario list
 
-% Build
-p = l.init_builder;
+
+%% Build
+% p = l.init_builder;
+
 % p.scenpar.NumClusters = 20;     % Reduce paths (for faster processing)
 % p.plpar=[];     % Disable pathloss model
-p.gen_parameters;          % Generate small-scaling fading parameters
 
-c = p.get_channels;    % Generate channel coefficients
+% p.gen_parameters();          % Generate small-scaling fading parameters
 
-% sqrt(10^(0.1*c(1).par.pg)) .... sqrt(10^(0.1*c(1000).par.pg))
+% ch_coeffs = p.get_channels;    % Generate channel coefficients
+ch_coeffs = l.get_channels;
+
 
 tic; % start timer
 
-% For test (Seeing the average)
-% iii=1;
-% h_t_mean = zeros(Nr,Nt);
-
 %% Generation start
-
-% num_RBs = 52; % Note: in LTE, 12 subcarriers -> 1 RB
-% num_subcarrier_per_RB = 12;
 
 % initialize channel matrix - extra dim for each ue
 H_set = zeros(num_tx, num_ue, l.rx_array(1).no_elements, l.tx_array(1).no_elements);
 
-% H_set = zeros(num_ue, num_RBs, l.rx_array(1).no_elements, l.tx_array(1).no_elements);
-% H_ang_set = zeros(num_ue, num_RBs, l.rx_array(1).no_elements, l.tx_array(1).no_elements);
-% UE_position_set = zeros(num_ue, 3);
-
 for ue_idx = 1 : num_ue
-    % num_subcarrier = 667; % 512        % 667: subcarrier spacing 30kHz for 20MHz BW
-    num_subcarrier = 1;                  % Narrowband setting
     
     % Channel generation
-    h_t = c(ue_idx).fr( 20e6, num_subcarrier); %cn.fr( 3855000, 257 );   B    W 20 MHz     % Freq.-domain channel
+    h_t1 = ch_coeffs(ue_idx).fr( BW(1), num_subcarrier); %cn.fr( 3855000, 257 );   B    W 20 MHz     % Freq.-domain channel
+    h_t2 = ch_coeffs(ue_idx).fr( BW(1), num_subcarrier);
 
-    % h_f = ifft2(h_t);
-    % h_t = (1/sqrt(10^(0.1*c(ue_idx).par.pg))) * h_t; %XXX PL Exist : PL yes, Not exist : PL no.
-    % 
-    % for RB_idx = 1 : num_RBs
-    %      h_t_reshaped = reshape(h_t(:,:,1:num_RBs*num_subcarrier_per_RB), [Nr, Nt, num_subcarrier_per_RB, num_RBs]);
-    %     val_tmp = 0;
-    %     for subcar_idx = 1 : num_subcarrier_per_RB
-    %         val_tmp = val_tmp + (h_t(:,:,RB_idx+subcar_idx)/num_subcarrier_per_RB);
-    %         H_set(ue_idx, RB_idx, :, :) = H_set(ue_idx, RB_idx, :, :) + (h_t(:,:,RB_idx+subcar_idx)/num_subcarrier_per_RB);
-    %     end
-    %     H_set(ue_idx, RB_idx, :, :) = val_tmp;
-    % end
+
     H_set(ue_idx, :, :) = h_t; 
-%     h_ang = Ar'*h_t*At; % For narrowband, h_t is Nr x Nt.
 
-
-    % Permutate it if you want
-    % H_set(ue_idx,:,:) = permute(h_t,[2,1]);
-    % Hf_set(ue_idx,:,:) = permute(h_f,[2,1]);
-    % 
-    % H_set(ue_idx,:,:) = h_t;
-    % H_ang_set(ue_idx,:,:) = h_ang;
-    % UE_position_set(ue_idx,:,:) = c(ue_idx).rx_position;
-
+    % Keep track of timing
     toc_temp = toc;
     for disp_idx = 1 : 10
         if ue_idx/num_ue == disp_idx*0.1
@@ -157,33 +165,9 @@ for ue_idx = 1 : num_ue
         end
     end
 
-    % Test - print image
-    %     h_t_mean = h_t_mean + h_t;
-    %     figure(iii)
-    %     imagesc(abs(Ar'*h_t*At))
-    % %     figure(2)
-    % %     imagesc(abs(h_f_test))
-    %     disp(c(ue_idx).rx_position)
-    %     iii = iii+1;
 end
 
-% % First, merge the first two dimensions
-% H_set = reshape(H_set, [num_ue*num_RBs, Nr, Nt]);
-% 
-% H_set_final = zeros(num_ue*num_RBs, Nt, Nr);
-% % Transpose the last two dimensions for each matrix
-% for i = 1:(num_ue*num_RBs)
-%     H_set_final(i, :, :) = permute(squeeze(H_set(i, :, :)), [2 1]);
-% end
-
-
-% h_t_mean = h_t_mean/num_ue;
-% figure(1)
-%     imagesc(abs(Ar'*h_t_mean*At))
-% figure(2)
-%     plot(abs((1/8 * ones(1,4) * Ar'*h_t_mean*At)))
-
-% Collect Receiver Positions
+%% Collect Receiver Positions
 % Assuming each row of rx_positions contains the [x, y, z] coordinates of a receiver
 rx_positions = zeros(num_ue, 3);
 for ue_idx = 1:num_ue
@@ -191,49 +175,19 @@ for ue_idx = 1:num_ue
 end
 
 %% Storage path
-% basepath = "D:/Dropbox/Code/Nokia-UT/Quadriga_chmodel";
-basepath = "./Data_folder";
-storage_path = strcat(basepath, "/Data_Narrowband(CH+UEposition)_Nt", string(l.tx_array(1).no_elements), "_Nr", string(l.rx_array(1).no_elements));
+storage_path = "./Data_folder/";
+
 if not(isfolder(storage_path))
     mkdir(storage_path);
 end
 
-% H_set_perm = permute(H_set, [3,1,2]);
-% Hf_set_perm = permute(H_ang_set, [3,1,2]);
-
-DIRNAME = datestr(now,'yyyymmdd');
-% filename = strcat(storage_path,"/Samples", string(num_ue*num_RBs) , "_date", DIRNAME,datestr(now,'HHMMSS'),".mat");
-% save(filename, "H_set_final"); 
+layout_info = strcat("NumUEs", string(num_ue), "_");
+ant_info = strcat("Nt", string(l.tx_array(1).no_elements), "_Nr", string(l.rx_array(1).no_elements), "_");
+date_info = strcat("date", string(datetime('now', 'Format', 'yyyyMMdd_HHmmss')), "_");
+description_info = "RLdata";
 
 % For multi-user
-% filename = strcat(storage_path,"/NumUEs", string(num_ue), "_num_RBs", string(num_RBs), "_date", DIRNAME,datestr(now,'HHMMSS'),"multiuser_ULA_nopl.mat");
-filename = strcat(storage_path,"/NumUEs", string(num_ue), "_date", DIRNAME,datestr(now,'HHMMSS'),"multiuser_ULA_nopl.mat");
+filename = strcat(layout_info, ant_info, date_info, description_info,".mat");
 
 % save(filename, "H_set"); 
 save(filename, "H_set", "rx_positions") %, '-v7.3'); %'-v7.3'
-
-% save(filename, "H_set", "H_ang_set", "UE_position_set"); 
-
-% basepath = "./Data_folder";
-% filename = strcat(basepath,"/DeepMIMO/O1_/ch_data_4_64_only1.h5");
-% batch_ch = h5read(filename,batch_ch);
-% batch_UE_loc = h5read(filename,batch_UE_loc);
-
-% Test code for visualization -- Ignore it!
-% chtmp = zeros(Nr, Nt);
-% fronorm = 0 ;
-% for i = 1 : size(data_complex,1)
-% %     chtmp = chtmp + squeeze(batch_ch(i,:,:))/norm(squeeze(batch_ch(i,:,:)),'fro');
-%     chtmp = chtmp + squeeze(data_complex(i,:,:));
-%     fronorm = fronorm + (norm(squeeze(data_complex(i,:,:))))^2;
-% end
-% chtmp = chtmp/size(data_complex,1);
-% fronorm = sqrt(fronorm/size(data_complex,1));
-% figure(1)
-%     mesh(abs(Ar'*chtmp*At))
-% %     imagesc(abs(Ar'*chtmp*At))
-% figure(2)
-%     plot(abs((1/Nr * ones(1,Nr) * Ar'*chtmp*At)))
-% 
-% mesh(abs(Ar'*squeeze(H_set(2060,:,:))*At))
-% 
