@@ -81,4 +81,9 @@ plot(time,pow_2'+50);
 plot(time,pow_3'+50);
 hold off;
 
+% /////////////////////////////////////////////////////
+% CHECK THE c.name!
+% I believe that the different channels are named similarly in Manan's
+% code.
+% /////////////////////////////////////////////////////
 
