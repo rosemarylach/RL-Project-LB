@@ -1,12 +1,13 @@
 % QuadRiGa channel object loaded into variable 'quadriga_channel_obj'
 load('c_vals.mat');
+quadriga_channel_obj = c;
 
 output_folder_name = 'UE_CSV_Files';
 output_folder_path = fullfile(pwd, output_folder_name);  % pwd is the current directory
 if ~exist(output_folder_path, 'dir')
     mkdir(output_folder_path);  % Make the directory if it doesn't exist
 end
-quadriga_channel_obj = c;
+
 % BS transmit power in dBm
 BS_TX_POWER_DBM = 40;
 
