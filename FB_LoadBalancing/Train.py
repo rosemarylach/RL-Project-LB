@@ -135,7 +135,7 @@ def load_model(model, path):
 
 if __name__ == "__main__":
     test_run_flag = True
-    evaluate_flag = True
+    evaluate_flag = False
     load_old_model_flag = False
     # import UE trajectories into DataFrames
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
