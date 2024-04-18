@@ -1,13 +1,12 @@
 % QuadRiGa channel object loaded into variable 'quadriga_channel_obj'
 load('c_vals.mat');
-quadriga_channel_obj = c;
 
 output_folder_name = 'UE_CSV_Files';
 output_folder_path = fullfile(pwd, output_folder_name);  % pwd is the current directory
 if ~exist(output_folder_path, 'dir')
     mkdir(output_folder_path);  % Make the directory if it doesn't exist
 end
-
+quadriga_channel_obj = c;
 % BS transmit power in dBm
 BS_TX_POWER_DBM = 40;
 
@@ -17,13 +16,13 @@ BS_TX_POWER_DBM = 40;
 [~, num_sectors, num_taps, num_timestamps] = size(c(1,1,1).coeff); % Number of sectors per BS, taps in a channel, timestamps
 
 % Define the CSV data columns
-column_names = {'x_coord', 'y_coord', 'z_coord', 'Timestamp', 'PCI1', 'PCI2', 'PCI3', 'PCI4', 'PCI5', 'PCI6', 'RSRP1', 'RSRP2','RSRP3','RSRP4','RSRP5','RSRP6'};
+column_names = {'x_coord', 'y_coord', 'z_coord', 'Timestamp', 'serving pci 1', 'serving pci 2', 'serving pci 3', 'serving pci 4', 'serving pci 5', 'serving pci 6', 'RSRP1', 'RSRP2','RSRP3','RSRP4','RSRP5','RSRP6'};
 csv_data = cell(num_timestamps, length(column_names));
 
 % Convert BS transmit power to linear scale
 bs_tx_power_linear = 10^(BS_TX_POWER_DBM / 10);
 
-freqs_string = ["25", "07"];
+freqs_string = ["0", "1"];
 
 % Iterate over each UE, BS, sector, frequency, and timestamp
 for ue_idx = 1:num_ue
@@ -65,7 +64,7 @@ for ue_idx = 1:num_ue
         csv_table = cell2table(csv_data, 'VariableNames', column_names);
         
          % Full path for the CSV file
-        csv_filename = strcat('exp1_ue', num2str(ue_idx), '_freq', freqs_string(freq_idx), '.csv');
+        csv_filename = strcat('exp1_ue', num2str(ue_idx), '_', freqs_string(freq_idx), '.csv');
         full_csv_path = fullfile(output_folder_path, csv_filename);
         
 
