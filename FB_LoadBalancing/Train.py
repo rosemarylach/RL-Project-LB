@@ -142,8 +142,11 @@ if __name__ == "__main__":
     #        + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/mobility_sampled_100ms/trial*"
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #        + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/mobility_sampled_100ms_3eNB/trial*"
-    path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
-           + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive/trial*"
+    # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
+    #       + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive/trial*"
+
+    path = '/Users/ad53533/Documents/MATLAB/Current-Classes/Reinforcement-Learning/c_vals_save_test/UE_CSV_Files'
+
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #        + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive_5eNB_zapdos/trial*"
     path_list = glob.glob(path)
