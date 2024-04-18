@@ -19,6 +19,15 @@ from utils import convert_to_one_hot, convert_action_agent_to_env, get_output_fo
 import timing
 
 
+def ensure_directory_exists(directory_path):
+    # This is to ensure that such a directory exists before trying to save any data.
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+
+def convert_numpy(obj):
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()  # Convert ndarray to list
+    raise TypeError("Not serializable")
 def train(q_net=None, target_q_net=None, episode_memory=None,
           device=None,
           optimizer=None,
@@ -189,6 +198,9 @@ if __name__ == "__main__":
     else:
         out_path = get_output_folder(env_name=env_name)
 
+    # Ensure the output path exists
+    ensure_directory_exists(out_path)
+
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     # Set the seed
@@ -339,8 +351,9 @@ if __name__ == "__main__":
     timing.log("End training")
     # writer.close()
     np.save(os.path.join(out_path, "Train_reward_list.npy"), np.array(reward_list))
+    # When dumping to JSON, use this function to check and convert
     with open(os.path.join(out_path, 'parameters.json'), 'w') as fp:
-        json.dump(param_dict, fp, indent=4)
+        json.dump(param_dict, fp, default=convert_numpy, indent=4)
 
     if evaluate_flag:
         np.save(os.path.join(out_path, "Reward_arrray_evaluation_during_training.npy"), np.array(test_reward_list))
