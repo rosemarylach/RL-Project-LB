@@ -143,7 +143,7 @@ def load_model(model, path):
 if __name__ == "__main__":
     test_run_flag = True
     evaluate_flag = False
-    load_old_model_flag = False
+    load_old_model_flag = True
     # import UE trajectories into DataFrames
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #        + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/mobility_sampled_100ms/trial*"
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     learning_rate = 1e-3
     buffer_len = int(100000)
     min_epi_num = 16  # Start moment to train the Q network
-    episodes = 101
+    episodes = 21
     print_per_iter = 20
     test_per_iter = episodes/10
     target_update_period = 4
@@ -251,7 +251,7 @@ if __name__ == "__main__":
               action_space=env.NumBS * env.NumFreq).to(device)
 
     if load_old_model_flag:
-        load_model(model=Q, path=model_path)
+        load_model(model=Q, path=os.path.join(out_path, model_name + '.pth'))
 
     Q_target = Q_net(state_space=env.NumBS * env.NumFreq,
                      action_space=env.NumBS * env.NumFreq).to(device)
