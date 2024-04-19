@@ -266,8 +266,10 @@ if __name__ == "__main__":
     num_episodes = 1
     np.random.seed(412)
     # import UE trajectories into DataFrames
-    path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
-           + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive_5eNB_zapdos/trial*"
+    # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
+    #       + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive_5eNB_zapdos/trial*"
+
+    path = '/Users/ad53533/Documents/MATLAB/Current-Classes/Reinforcement-Learning/c_vals_save_test/UE_CSV_Files'
     path_list = glob.glob(path)
 
     DF_dict = load_ue_trajectories(path=path_list[0])
@@ -290,18 +292,18 @@ if __name__ == "__main__":
 
     # Create agent
     # test_model_path = 'ArticunoFiles/LoadBalancingCentralized-run4'
-    test_model_path = 'output_files/LoadBalancingCentralized-run22'
+    test_model_path = 'runs'
     test_model_name = 'LB_DRQN_centralized.pth'
 
-    # reward_list_per_episode_rl, action_list_per_episode_rl, ho_count_per_episode_rl, rate_per_episode_rl \
-    #     = evaluate_rl_policy(data_path_list=path_list, model_path=test_model_path, model_name=test_model_name,
-    #                          environment=test_environment)
-    # timing.log("Done Evaluating RL policy")
-    # if save_results_flag:
-    #     np.save(os.path.join(test_model_path, "Evaluated_reward"), np.array(reward_list_per_episode_rl))
-    #     np.save(os.path.join(test_model_path, "Evaluated_action"), np.array(action_list_per_episode_rl))
-    #     np.save(os.path.join(test_model_path, "Evaluated_ho_count_dict"), ho_count_per_episode_rl)
-    #     np.save(os.path.join(test_model_path, "Evaluated_rate"), np.array(rate_per_episode_rl))
+    reward_list_per_episode_rl, action_list_per_episode_rl, ho_count_per_episode_rl, rate_per_episode_rl \
+         = evaluate_rl_policy(data_path_list=path_list, model_path=test_model_path, model_name=test_model_name,
+                              environment=test_environment)
+    timing.log("Done Evaluating RL policy")
+    if save_results_flag:
+        np.save(os.path.join(test_model_path, "Evaluated_reward"), np.array(reward_list_per_episode_rl))
+        np.save(os.path.join(test_model_path, "Evaluated_action"), np.array(action_list_per_episode_rl))
+        np.save(os.path.join(test_model_path, "Evaluated_ho_count_dict"), ho_count_per_episode_rl)
+        np.save(os.path.join(test_model_path, "Evaluated_rate"), np.array(rate_per_episode_rl))
     #
     reward_list_per_episode_convex_program, \
         action_list_per_episode_convex_program, \

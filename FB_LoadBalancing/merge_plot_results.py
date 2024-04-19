@@ -89,7 +89,8 @@ def load_results_data(path, policy):
 
 
 if __name__ == "__main__":
-    path_list = ['output_files/LoadBalancingCentralized-run25']
+    path_list = ['runs']
+    # path_list = ['output_files/LoadBalancingCentralized-run25']
     # path_list = ['ZapdosFiles/LoadBalancingCentralized-run3']
     # path_list = ['ArticunoFiles/tmp2/LoadBalancingCentralized-run4',
     #              'ArticunoFiles/tmp/LoadBalancingCentralized-run4',
@@ -97,7 +98,7 @@ if __name__ == "__main__":
     plot_rl_flag = True
     plot_convex_program_flag = False
     plot_max_sinr_flag = True
-    plot_max_rate_flag = True
+    plot_max_rate_flag = False
     plot_max_rsrp_flag = True
     fontsize = 12
     linewidth = 3

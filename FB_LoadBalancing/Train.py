@@ -126,13 +126,11 @@ def evaluate(q_net, episodes, df_dict_path_list, test_environment):
 
     return reward_list_per_episode
 
-
 def seed_torch(seed):
     torch.manual_seed(seed)
     if torch.backends.cudnn.enabled:
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
-
 
 def save_model(model, path='default.pth'):
     torch.save(model.state_dict(), path)
@@ -154,7 +152,7 @@ if __name__ == "__main__":
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #       + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive/trial*"
 
-    path = '/Users/ad53533/Documents/MATLAB/Current-Classes/Reinforcement-Learning/c_vals_save_test/UE_CSV_Files'
+    path = '/Users/ad53533/Documents/MATLAB/Current-Classes/Reinforcement-Learning/c_vals_save_test/UE_CSV_Files/*'
 
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #        + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive_5eNB_zapdos/trial*"
@@ -217,7 +215,7 @@ if __name__ == "__main__":
     learning_rate = 1e-3
     buffer_len = int(100000)
     min_epi_num = 16  # Start moment to train the Q network
-    episodes = 10
+    episodes = 21
     print_per_iter = 20
     test_per_iter = episodes/10
     target_update_period = 4
