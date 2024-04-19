@@ -1,10 +1,11 @@
 % QuadRiGa channel object loaded into variable 'quadriga_channel_obj'
-
-num_realizations = 1;
+file_path = pwd;
+file_path = strcat(file_path, '/chan_realizations/chan_realization_');
+num_realizations = 16;
 
 % Start loading the channel realizations in order and shape as data frames.
 for chan_realization_ind = 1 : 1 : num_realizations
-    load(strcat('c_vals', num2str(chan_realization_ind), '.mat') );
+    load(strcat(file_path,num2str(chan_realization_ind),'/','c_vals_', num2str(chan_realization_ind), '.mat') );
 
     output_folder_name = 'UE_CSV_Files';
     output_folder_path = fullfile(pwd, output_folder_name);  % pwd is the current directory
@@ -45,8 +46,8 @@ for chan_realization_ind = 1 : 1 : num_realizations
             row_counter = 1;
             % Initialize the csv again for the next iteration.
             csv_data = cell(num_timestamps, length(column_names));
-            rsrp_6 = [];        % Holds the 6 RSRP values.
             for ts = 1:num_timestamps
+                rsrp_6 = [];        % Holds the 6 RSRP values.
                 for bs_idx = 1:num_bs
                     for sector_idx = 1:num_sectors
                         % Access the channel coefficients for current UE, BS, sector, and frequency

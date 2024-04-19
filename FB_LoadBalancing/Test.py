@@ -269,10 +269,10 @@ if __name__ == "__main__":
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #       + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive_5eNB_zapdos/trial*"
 
-    path = '/Users/ad53533/Documents/MATLAB/Current-Classes/Reinforcement-Learning/c_vals_save_test/UE_CSV_Files'
+    path = '/Users/ad53533/Documents/MATLAB/Current-Classes/Reinforcement-Learning/UE_CSV_Files/*'
     path_list = glob.glob(path)
 
-    DF_dict = load_ue_trajectories(path=path_list[0])
+    DF_dict = load_ue_trajectories(path=path_list[1])
 
     # Set gym environment
     env_params = {
