@@ -269,7 +269,7 @@ if __name__ == "__main__":
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #       + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive_5eNB_zapdos/trial*"
 
-    path = '/Users/ad53533/Documents/MATLAB/Current-Classes/Reinforcement-Learning/UE_CSV_Files/*'
+    path = '/Users/rl33442/Documents/UT Courses/Year 1/Semester 2/Reinforcement Learning/RL-Project-LB/UE_CSV_Files/*'
     path_list = glob.glob(path)
 
     DF_dict = load_ue_trajectories(path=path_list[1])
@@ -285,7 +285,8 @@ if __name__ == "__main__":
         "INTERFERENCE_FRACTION": 1,
         "NOISE_dBm_per_Hz": -174,
         "NOISE_FIGURE": 10,
-        "SLOT_DURATION_MS": 100
+        "SLOT_DURATION_MS": 100,
+        "PARTITIONED": False
     }
 
     test_environment = LBCellularEnv(env_params_dict=env_params)

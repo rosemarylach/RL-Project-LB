@@ -16,7 +16,7 @@ class Q_net(nn.Module):
         assert state_space is not None, "None state_space input: state_space should be selected."
         assert action_space is not None, "None action_space input: action_space should be selected."
 
-        self.hidden_space = 64
+        self.hidden_space = 32
         self.state_space = state_space
         self.action_space = action_space
 
@@ -28,14 +28,12 @@ class Q_net(nn.Module):
     def forward(self, x, h, c):
 
         batch_size = x.shape[1]
-        num_users = x.shape[2]
         x_sinr = F.relu(self.Linear1(x[..., 0]))
         x_association = F.relu(self.Linear2(x[..., 1]))
 
         x = torch.cat([x_sinr, x_association], dim=-1)
-        x = x.permute(0, 2, 1, 3).reshape(x.shape[0], x.shape[1] * x.shape[2], x.shape[3], -1).squeeze(-1)
         x, (new_h, new_c) = self.lstm(x, (h, c))
-        x = x.reshape(x.shape[0], num_users, batch_size, x.shape[2]).permute(0, 2, 1, 3)
+        x = x.reshape(x.shape[0], batch_size, x.shape[2])
         x = self.Linear3(x)
 
         return x, new_h, new_c

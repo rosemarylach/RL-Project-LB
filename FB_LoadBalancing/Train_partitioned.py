@@ -14,10 +14,9 @@ from Policies.UserAssociationPolicies import *
 from Policies.DRQNAgent.DRQN import Q_net
 from Policies.DRQNAgent.Buffers import EpisodeMemory, EpisodeBuffer
 from env.LBCellularEnv import LBCellularEnv
-from utils import convert_to_one_hot, convert_action_agent_to_env, get_output_folder, load_ue_trajectories
+from utils import convert_to_one_hot, convert_action_agent_to_env, convert_action_env_to_agent, get_output_folder, load_ue_trajectories
 
 import timing
-
 
 def ensure_directory_exists(directory_path):
     # This is to ensure that such a directory exists before trying to save any data.
@@ -28,6 +27,7 @@ def convert_numpy(obj):
     if isinstance(obj, np.ndarray):
         return obj.tolist()  # Convert ndarray to list
     raise TypeError("Not serializable")
+
 def train(q_net=None, target_q_net=None, episode_memory=None,
           device=None,
           optimizer=None,
@@ -103,6 +103,9 @@ def evaluate(q_net, episodes, df_dict_path_list, test_environment):
         while not done:
 
             # Get action
+            # q_values, h, c = q_net.sample_q_value(torch.from_numpy(obs).float().to(device).unsqueeze(0).unsqueeze(0),
+            #                                   h.to(device), c.to(device), epsilon_test)
+
             q_values, h, c = q_net.sample_q_value(torch.from_numpy(obs).float().to(device).unsqueeze(0).unsqueeze(0),
                                               h.to(device), c.to(device), epsilon_test)
             a = np.argmax(q_values, axis=1)
@@ -281,26 +284,36 @@ if __name__ == "__main__":
         # print(path_list[i % len(path_list)])
         DF_dict = load_ue_trajectories(path=path_list[i % len(path_list)])
         s = env.reset(dataframe_dict=DF_dict)
-        obs = s  # Use only Position of Cart and Pole
+        obs = s  
         done = False
 
         episode_record = EpisodeBuffer()
-        h, c = Q.init_hidden_state(batch_size=env.NumUE)
+        h, c = Q.init_hidden_state(batch_size=1)
 
         t = -1
         while not done:
             t += 1
-            print(t)
             # Get action
-            q_values, h, c = Q.sample_q_value(torch.from_numpy(obs).float().to(device).unsqueeze(0).unsqueeze(0),
-                                              h.to(device), c.to(device), epsilon)
-            a = np.argmax(q_values, axis=1)
 
-            # the sampled action a is an index out of the range(env.NumBS * env.NumFreq)
-            # action_env is different. Look at the env doc
-            action_env = convert_action_agent_to_env(action_agent=a, num_bs=env.NumBS)
+            action_env = env.user_bs_association.copy().astype(int)
+            for ue in range(env.NumUE):
+                ue_obs = obs[ue]
+
+                q_values, h, c = Q.sample_q_value(torch.from_numpy(ue_obs).float().to(device).unsqueeze(0).unsqueeze(0).unsqueeze(0),
+                                              h.to(device), c.to(device), epsilon)
+                ue_a = np.array(np.argmax(q_values))
+
+                # the sampled action a is an index out of the range(env.NumBS * env.NumFreq)
+                # action_env is different. Look at the env doc
+                ue_action_env = convert_action_agent_to_env(action_agent=ue_a, num_bs=env.NumBS)
+
+                action_env[ue] = ue_action_env
+
+            a = convert_action_env_to_agent(action_env=action_env, num_bs=env.NumBS)
 
             # Convert the index 'a' to one hot representation.
+            # ue_a_bool_idx = convert_to_one_hot(ue_a, n_values=env.NumBS * env.NumFreq)
+
             a_bool_idx = convert_to_one_hot(a, n_values=env.NumBS * env.NumFreq)
 
             # Do action
@@ -319,11 +332,11 @@ if __name__ == "__main__":
 
             if len(episode_memory) >= batch_size + 1:
                 train(Q, Q_target, episode_memory, device,
-                      optimizer=optimizer,
-                      batch_size=batch_size,
-                      learning_rate=learning_rate)
+                    optimizer=optimizer,
+                    batch_size=batch_size,
+                    learning_rate=learning_rate)
 
-                if (t + 1) % target_update_period == 0:
+                if ((t*env.NumUE + ue) + 1) % target_update_period == 0:
                     # Q_target.load_state_dict(Q.state_dict()) <- navie update
                     for target_param, local_param in zip(Q_target.parameters(), Q.parameters()):  # <- soft update
                         target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)

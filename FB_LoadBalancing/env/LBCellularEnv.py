@@ -88,6 +88,7 @@ class LBCellularEnv(gym.Env):
         self.BW_Hz = env_params_dict["BW"]
         self.tx_power_correction = env_params_dict["TX_POWER_CORRECTION_dB"]
         self.interference_fraction = env_params_dict["INTERFERENCE_FRACTION"]
+        self.partitioned = env_params_dict["PARTITIONED"]
         self.state = self.reset(dataframe_dict=env_params_dict["DATAFRAME_DICT"])
 
     def _take_action(self,
@@ -110,12 +111,23 @@ class LBCellularEnv(gym.Env):
 
         for ue_idx in range(self.NumUE):
             df = self._DataFrameDict[ue_idx][self.freq_bands[0]]
-            if self.current_step >= len(df):
-                breakpoint()
-            x_array = df.iloc[self.current_step, 0]
-            y_array = df.iloc[self.current_step, 1]
-            loc_mat[ue_idx, 0] = x_array
-            loc_mat[ue_idx, 1] = y_array
+
+            if self.partitioned:
+                effective_step = (np.floor(self.current_step) / len(df)).astype(int)
+                if self.effective_step >= len(df):
+                    breakpoint()
+                x_array = df.iloc[effective_step, 0]
+                y_array = df.iloc[effective_step, 1]
+                loc_mat[ue_idx, 0] = x_array
+                loc_mat[ue_idx, 1] = y_array
+
+            else:
+                if self.current_step >= len(df):
+                    breakpoint()
+                x_array = df.iloc[self.current_step, 0]
+                y_array = df.iloc[self.current_step, 1]
+                loc_mat[ue_idx, 0] = x_array
+                loc_mat[ue_idx, 1] = y_array
 
         return loc_mat
 
@@ -133,12 +145,23 @@ class LBCellularEnv(gym.Env):
         for ue_idx in range(self.NumUE):
             for freq_idx, freq_band in enumerate(self.freq_bands):
                 df = self._DataFrameDict[ue_idx][freq_band]
-                if self.current_step >= len(df):
-                    breakpoint()
-                pci_array = df.iloc[self.current_step, pci_idx_list].to_numpy().astype(int)
-                pci_array = pci_array - 1
-                rsrp_array = df.iloc[self.current_step, rsrp_idx_list].to_numpy()
-                rsrp_mat[ue_idx, pci_array, freq_idx] = rsrp_array
+
+                if self.partitioned:
+                    effective_step = (np.floor(self.current_step) / len(df)).astype(int)
+                    if effective_step >= len(df):
+                        breakpoint()
+                    pci_array = df.iloc[effective_step, pci_idx_list].to_numpy().astype(int)
+                    pci_array = pci_array - 1
+                    rsrp_array = df.iloc[effective_step, rsrp_idx_list].to_numpy()
+                    rsrp_mat[ue_idx, pci_array, freq_idx] = rsrp_array
+                    
+                else:
+                    if self.current_step >= len(df):
+                        breakpoint()
+                    pci_array = df.iloc[self.current_step, pci_idx_list].to_numpy().astype(int)
+                    pci_array = pci_array - 1
+                    rsrp_array = df.iloc[self.current_step, rsrp_idx_list].to_numpy()
+                    rsrp_mat[ue_idx, pci_array, freq_idx] = rsrp_array
 
         return rsrp_mat
 
@@ -175,8 +198,11 @@ class LBCellularEnv(gym.Env):
         # print(len(dataframe_dict), self.current_step)
         self.freq_bands = list(dataframe_dict[0].keys())
         self.NumFreq = len(self.freq_bands)
-
-        self.max_episode_length = len(dataframe_dict[0][self.freq_bands[0]])
+        
+        if self.partitioned:
+            self.max_episode_length = len(dataframe_dict[0][self.freq_bands[0]]) * self.NumUE
+        else:
+            self.max_episode_length = len(dataframe_dict[0][self.freq_bands[0]])
 
         return
 
