@@ -152,7 +152,7 @@ if __name__ == "__main__":
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #       + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive/trial*"
 
-    path = '/Users/rl33442/Documents/UT Courses/Year 1/Semester 2/Reinforcement Learning/RL-Project-LB/UE_CSV_Files/*'
+    path = '/Users/rl33442/Documents/UT Courses/Year 1/Semester 2/Reinforcement Learning/RL-Project-LB/UE_CSV_Files-10x1Antenna/*'
 
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #        + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive_5eNB_zapdos/trial*"
@@ -290,7 +290,6 @@ if __name__ == "__main__":
         t = -1
         while not done:
             t += 1
-            print(t)
             # Get action
             q_values, h, c = Q.sample_q_value(torch.from_numpy(obs).float().to(device).unsqueeze(0).unsqueeze(0),
                                               h.to(device), c.to(device), epsilon)

@@ -89,7 +89,7 @@ def load_results_data(path, policy):
 
 
 if __name__ == "__main__":
-    path_list = ['runs']
+    path_list = ['old_runs/runs_10x1_dqn_lr1e-3']
     # path_list = ['output_files/LoadBalancingCentralized-run25']
     # path_list = ['ZapdosFiles/LoadBalancingCentralized-run3']
     # path_list = ['ArticunoFiles/tmp2/LoadBalancingCentralized-run4',

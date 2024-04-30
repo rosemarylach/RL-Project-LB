@@ -263,13 +263,13 @@ if __name__ == "__main__":
 
     save_results_flag = True
     epsilon_test = 1e-16
-    num_episodes = 1
+    num_episodes = 20
     np.random.seed(412)
     # import UE trajectories into DataFrames
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #       + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive_5eNB_zapdos/trial*"
 
-    path = '/Users/rl33442/Documents/UT Courses/Year 1/Semester 2/Reinforcement Learning/RL-Project-LB/UE_CSV_Files/*'
+    path = '/Users/rl33442/Documents/UT Courses/Year 1/Semester 2/Reinforcement Learning/RL-Project-LB/UE_CSV_Files-10x1Antenna/*'
     path_list = glob.glob(path)
 
     DF_dict = load_ue_trajectories(path=path_list[1])
@@ -293,7 +293,7 @@ if __name__ == "__main__":
 
     # Create agent
     # test_model_path = 'ArticunoFiles/LoadBalancingCentralized-run4'
-    test_model_path = 'runs'
+    test_model_path = 'old_runs/runs_10x1_dqn_lr1e-3'
     test_model_name = 'LB_DRQN_centralized.pth'
 
     reward_list_per_episode_rl, action_list_per_episode_rl, ho_count_per_episode_rl, rate_per_episode_rl \
@@ -306,21 +306,21 @@ if __name__ == "__main__":
         np.save(os.path.join(test_model_path, "Evaluated_ho_count_dict"), ho_count_per_episode_rl)
         np.save(os.path.join(test_model_path, "Evaluated_rate"), np.array(rate_per_episode_rl))
     #
-    reward_list_per_episode_convex_program, \
-        action_list_per_episode_convex_program, \
-        ho_count_per_episode_convex_program, \
-        rate_per_episode_convex_program \
-        = evaluate_convex_program(data_path_list=path_list, environment=test_environment)
-    timing.log("Done evaluating convex policy")
-    if save_results_flag:
-        np.save(os.path.join(test_model_path, "Evaluated_reward_convex_program"),
-                np.array(reward_list_per_episode_convex_program))
-        np.save(os.path.join(test_model_path, "Evaluated_action_convex_program"),
-                np.array(action_list_per_episode_convex_program))
-        np.save(os.path.join(test_model_path, "Evaluated_ho_count_dict_convex_program"),
-                ho_count_per_episode_convex_program)
-        np.save(os.path.join(test_model_path, "Evaluated_rate_convex_program"),
-                np.array(rate_per_episode_convex_program))
+    # reward_list_per_episode_convex_program, \
+    #     action_list_per_episode_convex_program, \
+    #     ho_count_per_episode_convex_program, \
+    #     rate_per_episode_convex_program \
+    #     = evaluate_convex_program(data_path_list=path_list, environment=test_environment)
+    # timing.log("Done evaluating convex policy")
+    # if save_results_flag:
+    #     np.save(os.path.join(test_model_path, "Evaluated_reward_convex_program"),
+    #             np.array(reward_list_per_episode_convex_program))
+    #     np.save(os.path.join(test_model_path, "Evaluated_action_convex_program"),
+    #             np.array(action_list_per_episode_convex_program))
+    #     np.save(os.path.join(test_model_path, "Evaluated_ho_count_dict_convex_program"),
+    #             ho_count_per_episode_convex_program)
+    #     np.save(os.path.join(test_model_path, "Evaluated_rate_convex_program"),
+    #             np.array(rate_per_episode_convex_program))
 
     print("evaluating max sinr")
     reward_list_per_episode_max_sinr, \
@@ -373,4 +373,4 @@ if __name__ == "__main__":
         np.save(os.path.join(test_model_path, "Evaluated_rate_max_rsrp"),
                 np.array(rate_per_episode_max_rsrp))
 
-    breakpoint()
+    # breakpoint()

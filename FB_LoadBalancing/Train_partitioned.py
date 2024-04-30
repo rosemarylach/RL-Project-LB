@@ -155,7 +155,7 @@ if __name__ == "__main__":
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #       + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive/trial*"
 
-    path = '/Users/rl33442/Documents/UT Courses/Year 1/Semester 2/Reinforcement Learning/RL-Project-LB/UE_CSV_Files/*'
+    path = '/Users/rl33442/Documents/UT Courses/Year 1/Semester 2/Reinforcement Learning/RL-Project-LB/UE_CSV_Files-10x1Antenna/*'
 
     # path = '/Users/mg57437/Documents/Manan Backup/lecture notes/GradSchool/RA/' \
     #        + "LoadBalancing/FB_Quadriga/savedResults/Scenario 0.7/urban_drive_5eNB_zapdos/trial*"
@@ -174,12 +174,12 @@ if __name__ == "__main__":
 
     env_params = {
         "DATAFRAME_DICT": DF_dict,
-        "RLF_PROB": 0.5,
+        "RLF_PROB": 0.2,
         "INTERRUPTION_TIME_DICT": {"RLF": 90.79,
                                    "successful_ho": 20},
         "BW": np.array([10e6, 60e6]),
-        "TX_POWER_CORRECTION_dB": -10,
-        "INTERFERENCE_FRACTION": 0.8,
+        "TX_POWER_CORRECTION_dB": 0,
+        "INTERFERENCE_FRACTION": 1,
         "NOISE_dBm_per_Hz": -174,
         "NOISE_FIGURE": 10,
         "SLOT_DURATION_MS": 100,
