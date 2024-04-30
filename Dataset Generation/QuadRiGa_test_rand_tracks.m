@@ -66,19 +66,19 @@ for chan_realization_ind = 1 : 1 : chan_realization_num
 
     %% Generate tracks
     % gen_sq_track([start_x; start_y; start_z], height, width)
-    t1 = gen_sq_track([-300; 10; ue_height], 100, 600);
-    t2 = gen_sq_track([-300; -110; ue_height], 210, 200);
-    t3 = gen_sq_track([-100; 120; ue_height], 100, 200);
-    t4 = gen_sq_track([-300; -110; ue_height], 100, 600);
-    t5 = gen_sq_track([-100; -220; ue_height], 100, 200);
-    t6 = gen_sq_track([-100; 10; ue_height], 100, 200);
-    t7 = gen_sq_track([-100; -110; ue_height], 100, 200);
-    t8 = gen_sq_track([100; -110; ue_height], 210, 200);
-    t9 = gen_sq_track([-200; -110; ue_height], 220, 400);
-    t10 = gen_sq_track([-200; 110; ue_height], 110, 400);
-    t11 = gen_sq_track([-200; -220; ue_height], 110, 400);
-    t12 = gen_sq_track([-300; -220; ue_height], 440, 100);
-    t13 = gen_sq_track([200; -220; ue_height], 440, 100);
+    t1 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t2 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t3 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t4 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t5 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t6 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t7 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t8 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t9 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t10 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t11 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t12 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
+    t13 = gen_sq_track_from_center([400*rand()-200; 200*rand()-100; ue_height], 400*rand()+50, 500*rand()+50);
     track_opts = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13];
     track_lens = arrayfun(@(x) x.get_length(), track_opts);
 
@@ -137,7 +137,7 @@ for chan_realization_ind = 1 : 1 : chan_realization_num
         l.rx_track(1, ue) = ue_track;
     end
 
-    l.visualize([], [], 0);
+    % l.visualize([], [], 0);
 
     % [~,l.rx_track] = interpolate( t.copy,'distance',0.1 );  % Interpolate and assign track to layout
     %     l.visualize([],[],0);                                   % Plot
